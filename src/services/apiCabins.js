@@ -1,4 +1,4 @@
-import supabase, { supabaseUrl } from "./supabase";
+import supabase from "./supabase";
 
 export async function getCabins() {
   const { data, error } = await supabase.from("cabins").select("*");
@@ -13,7 +13,9 @@ export async function getCabins() {
 
 export async function createEditCabin(newCabin, id) {
   // Look if image has changed or not, if cabin has to be updated
-  const hasImagePath = newCabin.image?.startsWith?.(supabaseUrl);
+  const hasImagePath = newCabin.image?.startsWith?.(
+    import.meta.env.VITE_SUPABASE_URL
+  );
 
   // Create image name and replace '/' with '' to avoid path error in supabsae
   const imageName = `${Math.random()}-${newCabin.image.name}`.replace("/", "");
@@ -21,7 +23,9 @@ export async function createEditCabin(newCabin, id) {
   // Create image path, if image already exists in supabase and is not changed while updating the cabin than set it to that path else create new path
   const imagePath = hasImagePath
     ? newCabin.image
-    : `${supabaseUrl}/storage/v1/object/public/cabin-images/${imageName}`;
+    : `${
+        import.meta.env.VITE_SUPABASE_URL
+      }/storage/v1/object/public/cabin-images/${imageName}`;
 
   // Create query
   let query = supabase.from("cabins");

@@ -1,30 +1,31 @@
-import supabase, { supabaseUrl } from "./supabase";
+import supabase from "./supabase";
 
 export async function signup({ fullName, email, password }) {
-  throw new Error("You are not allowed to create a user!");
-  // let { data: users } = await supabase.from("users").select("*");
+  let { data: users } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email);
 
-  // const isUserExist = users.find((user) => user.email === email);
+  const isUserExist = users.length > 0;
 
-  // if (isUserExist)
-  //   throw new Error("Email already exists! Please use another one");
+  if (isUserExist)
+    throw new Error("Email already exists! Please use another one");
 
-  // const { data, error } = await supabase.auth.signUp({
-  //   email,
-  //   password,
-  //   options: {
-  //     data: {
-  //       fullName,
-  //       avatar: "",
-  //     },
-  //   },
-  // });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        fullName,
+        avatar: "",
+      },
+    },
+  });
 
-  // if (error) throw new Error(error.message);
+  if (error) throw new Error(error.message);
 
-  // await supabase.from("users").insert([{ email }]);
-
-  // return data;
+  await supabase.from("users").insert({ email });
+  return data;
 }
 
 export async function login({ email, password }) {
@@ -87,7 +88,9 @@ export async function updateCurrentUser({ password, fullName, avatar }) {
   // 4. Update avatar in the user
   const { data: updatedUser, error: error2 } = await supabase.auth.updateUser({
     data: {
-      avatar: `${supabaseUrl}/storage/v1/object/public/avatars/${fileName}`,
+      avatar: `${
+        import.meta.env.VITE_SUPABASE_URL
+      }/storage/v1/object/public/avatars/${fileName}`,
     },
   });
 
